@@ -1,0 +1,13 @@
+{
+  "module_name": "key-value",
+  "namespace": "mcvella",
+  "language": "python",
+  "resource_type": "component",
+  "resource_subtype": "sensor",
+  "model_name": "key-value",
+  "enable_cloud_build": false,
+  "initialize_git": false,
+  "generator_version": "0.1.0",
+  "generated_on": "2025-07-14T22:20:56.658083Z",
+  "module_readme_link": "README.md"
+}
