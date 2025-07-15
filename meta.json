@@ -2,7 +2,7 @@
   "$schema": "https://dl.viam.dev/module.schema.json",
   "module_id": "mcvella:key-value",
   "visibility": "public",
-  "url": "",
+  "url": "https://github.com/mcvella/viam-keyvalue",
   "description": "Modular sensor component: key-value",
   "models": [
     {
