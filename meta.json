@@ -8,7 +8,7 @@
     {
       "api": "rdk:component:sensor",
       "model": "mcvella:key-value:key-value",
-      "short_description": "Provide a short (100 characters or less) description of this model here",
+      "short_description": "key-value storage with TTL support, backed by SQLite",
       "markdown_link": "README.md#model-mcvellakey-valuekey-value"
     }
   ],
