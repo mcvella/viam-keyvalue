@@ -190,15 +190,15 @@ class KeyValue(Sensor, EasyResource):
         """Return all key/value pairs as sensor readings."""
         self._cleanup_expired_keys()
         
-        readings = {}
-        for key, data in self._memory_store.items():
-            readings[key] = {
-                "value": data["value"],
-                "created_at": data["created_at"],
-                "expires_at": data["expires_at"]
+        data = {}
+        for key, key_data in self._memory_store.items():
+            data[key] = {
+                "value": key_data["value"],
+                "created_at": key_data["created_at"],
+                "expires_at": key_data["expires_at"]
             }
         
-        return readings
+        return {"data": data}
 
     async def do_command(
         self,

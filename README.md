@@ -131,35 +131,44 @@ Response:
 
 ### GetReadings
 
-The `get_readings()` method returns all stored key-value pairs as sensor readings:
+The `get_readings()` method returns all stored key-value pairs as sensor readings wrapped under a "data" key:
 
 ```json
 {
-  "key1": {
-    "value": "value1",
-    "created_at": 1703123456.789,
-    "expires_at": null
-  },
-  "key2": {
-    "value": 0, 
-    "created_at": 1703123456.789,
-    "expires_at": 1703127056.789
-  },
-  "key3": {
-    "value": false,
-    "created_at": 1703123456.789,
-    "expires_at": null
-  },
-  "key4": {
-    "value": [1,2,3],
-    "created_at": 1703123456.789,
-    "expires_at": null
-  },
-  "key5": {
-    "value": {"a": 1, "b": 2},
-    "created_at": 1703123456.789,
-    "expires_at": null
+  "data": {
+    "key1": {
+      "value": "value1",
+      "created_at": 1703123456.789,
+      "expires_at": null
+    },
+    "key2": {
+      "value": 0, 
+      "created_at": 1703123456.789,
+      "expires_at": 1703127056.789
+    },
+    "key3": {
+      "value": false,
+      "created_at": 1703123456.789,
+      "expires_at": null
+    },
+    "key4": {
+      "value": [1,2,3],
+      "created_at": 1703123456.789,
+      "expires_at": null
+    },
+    "key5": {
+      "value": {"a": 1, "b": 2},
+      "created_at": 1703123456.789,
+      "expires_at": null
+    }
   }
+}
+```
+
+When no keys are stored, the response will be:
+```json
+{
+  "data": {}
 }
 ```
 

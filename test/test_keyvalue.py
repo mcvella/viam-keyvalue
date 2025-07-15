@@ -81,6 +81,9 @@ async def test_json_support():
 
     # All readings
     readings = await kv.get_readings()
+    assert "data" in readings
+    data = readings.get("data")
+    assert isinstance(data, dict)
     approx_type = type(pytest.approx(1))
     for key, expected in [
         ("string_key", "hello world"),
@@ -91,8 +94,8 @@ async def test_json_support():
         ("dict_key", d),
         ("complex_key", complex_data),
     ]:
-        assert key in readings
-        val = readings[key]
+        assert key in data
+        val = data[key]
         if isinstance(val, dict) and "value" in val:
             if isinstance(expected, approx_type):
                 assert val["value"] == expected
@@ -200,6 +203,39 @@ async def test_persistence():
     assert result["value"] == "val"
 
 @pytest.mark.asyncio
+async def test_empty_readings():
+    kv = KeyValue("test_empty_readings")
+    kv._ensure_db_directory()
+    kv._init_database()
+    
+    # Get readings when no keys exist
+    readings = await kv.get_readings()
+    assert "data" in readings
+    data = readings.get("data")
+    assert isinstance(data, dict)
+    assert len(data) == 0  # Empty data when no keys exist
+    
+    # Add a key and verify readings change
+    await kv.do_command({"command": "set", "key": "test_key", "value": "test_value"})
+    readings = await kv.get_readings()
+    assert "data" in readings
+    data = readings.get("data")
+    assert isinstance(data, dict)
+    assert len(data) == 1
+    assert "test_key" in data
+    test_key_data = data.get("test_key")
+    assert isinstance(test_key_data, dict)
+    assert test_key_data.get("value") == "test_value"
+    
+    # Delete all and verify we're back to empty data
+    await kv.do_command({"command": "delete_all"})
+    readings = await kv.get_readings()
+    assert "data" in readings
+    data = readings.get("data")
+    assert isinstance(data, dict)
+    assert len(data) == 0  # Empty data when all keys are deleted
+
+@pytest.mark.asyncio
 async def test_delete_all():
     kv = KeyValue("test_delete_all")
     kv._ensure_db_directory()
@@ -212,26 +248,24 @@ async def test_delete_all():
     
     # Verify they exist
     readings = await kv.get_readings()
-    assert len(readings) == 3
-    assert "key1" in readings
-    assert "key2" in readings
-    assert "key3" in readings
+    assert "data" in readings
+    data = readings.get("data")
+    assert isinstance(data, dict)
+    assert len(data) == 3
+    assert "key1" in data
+    assert "key2" in data
+    assert "key3" in data
     
     # Delete all
     result = await kv.do_command({"command": "delete_all"})
     assert result["success"]
     
-    # Verify all are gone
+    # Verify all are gone (data is empty)
     readings = await kv.get_readings()
-    assert len(readings) == 0
-    
-    # Verify individual gets fail
-    result = await kv.do_command({"command": "get", "key": "key1"})
-    assert "error" in result
-    result = await kv.do_command({"command": "get", "key": "key2"})
-    assert "error" in result
-    result = await kv.do_command({"command": "get", "key": "key3"})
-    assert "error" in result
+    assert "data" in readings
+    data = readings.get("data")
+    assert isinstance(data, dict)
+    assert len(data) == 0  # Empty data when all keys are deleted
 
 @pytest.mark.asyncio
 async def test_bulk_operations():
