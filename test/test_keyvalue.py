@@ -289,3 +289,50 @@ async def test_bulk_operations():
     for i in range(100):
         result = await kv.do_command({"command": "get", "key": f"key_{i}"})
         assert "error" in result 
+
+@pytest.mark.asyncio
+async def test_get_readings_persistence():
+    """Test that get_readings loads from SQLite when memory store is empty."""
+    kv = KeyValue("test_get_readings_persist")
+    kv._ensure_db_directory()
+    kv._init_database()
+    
+    # Set a key
+    await kv.do_command({"command": "set", "key": "persist_key", "value": "persist_value"})
+    
+    # Verify it's in memory
+    readings = await kv.get_readings()
+    assert "data" in readings
+    data = readings.get("data")
+    assert isinstance(data, dict)
+    assert "persist_key" in data
+    assert data["persist_key"]["value"] == "persist_value"
+    
+    # Clear memory store to simulate restart
+    kv._memory_store.clear()
+    
+    # Verify get_readings loads from SQLite
+    readings = await kv.get_readings()
+    assert "data" in readings
+    data = readings.get("data")
+    assert isinstance(data, dict)
+    assert "persist_key" in data
+    assert data["persist_key"]["value"] == "persist_value"
+
+@pytest.mark.asyncio
+async def test_get_persistence():
+    """Test that get command loads from SQLite when memory store is empty."""
+    kv = KeyValue("test_get_persist")
+    kv._ensure_db_directory()
+    kv._init_database()
+    
+    # Set a key
+    await kv.do_command({"command": "set", "key": "get_persist_key", "value": "get_persist_value"})
+    
+    # Clear memory store to simulate restart
+    kv._memory_store.clear()
+    
+    # Verify get command loads from SQLite
+    result = await kv.do_command({"command": "get", "key": "get_persist_key"})
+    assert result["success"]
+    assert result["value"] == "get_persist_value" 

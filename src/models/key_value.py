@@ -188,6 +188,10 @@ class KeyValue(Sensor, EasyResource):
         **kwargs
     ) -> Mapping[str, SensorReading]:
         """Return all key/value pairs as sensor readings."""
+        # If memory store is empty, try to load from database
+        if not self._memory_store:
+            self._load_from_database()
+        
         self._cleanup_expired_keys()
         
         data = {}
@@ -276,6 +280,20 @@ class KeyValue(Sensor, EasyResource):
                 "expires_at": data["expires_at"]
             }
         else:
+            # If not in memory, try loading from database
+            if not self._memory_store:
+                self._load_from_database()
+                # Check again after loading
+                if key_str in self._memory_store:
+                    data = self._memory_store[key_str]
+                    return {
+                        "success": True,
+                        "key": key_str,
+                        "value": data["value"],
+                        "created_at": data["created_at"],
+                        "expires_at": data["expires_at"]
+                    }
+            
             return {"error": f"Key '{key}' not found"}
 
     async def _handle_delete(self, command: Mapping[str, ValueTypes]) -> Mapping[str, ValueTypes]:
